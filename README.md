@@ -67,7 +67,8 @@ Next we need to install cython.
 
 Now we can install the gevent module, this may take several minutes.
 
-```wget https://github.com/surfly/gevent/archive/1.0rc2.tar.gz
+```
+wget https://github.com/surfly/gevent/archive/1.0rc2.tar.gz
 tar -xf 1.0rc2.tar.gz
 cd gevent-1.0rc2/
 python setup.py build
