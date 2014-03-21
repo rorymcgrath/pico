@@ -53,11 +53,13 @@ Or run behind Apache with mod_wsgi
 * Pico is a Remote Procedure Call (RPC) library for Python without any of the hassle usually associated with RPC. Literally add one line of code (``import pico``) to your Python module to turn it into a web service that is accessible through the Javascript (and Python) Pico client libararies.
 
 
-## So I have an Ubuntu ec2 Server. How do I install pico.
-For this we are going to install pico to run with gevent. gevent (https://github.com/surfly/gevent) is a concurrency library for
-python that includes a wsgi server. It's more efficient than apache mod_wsgi in many ways.
+## So I have an Amazon EC2 Server. How do I install pico.
+For this we are going to install pico to run with gevent (https://github.com/surfly/gevent). 
+This is a concurrency library for python that includes a wsgi server. It's more 
+efficient than apache mod_wsgi in many ways.
 
-Firstly lets ssh into your machine and install greenlet
+Firstly lets ssh into your machine. We now need to install some dependencies.
+Lets start by installing greenlet.
 
 `sudo easy_install greenlet`
 
@@ -84,7 +86,7 @@ For the purposes of this tutorial we will place the both of these in home direct
 `mkdir ~/modules`
 
 
-Now we add the following settings to the pico server:
+Now using your preferred editor we add the following code to the pico_server script:
 
 ```python
 #!/usr/bin/python
@@ -110,7 +112,7 @@ Now we want to make a start stop script for the pico service.
 
 `sudo touch /etc/init.d/pico`
 
-Set the contents of this file to be:
+Again using your prefered editor set the contents of this file to be:
 
 ```bash
 #!/bin/bash
@@ -139,6 +141,34 @@ Again this file needs to be executable so lets change the premissions:
 
 Now lets start the pico server
 `sudo service pico start`
+
+Now we just need to set some configurations for the apache server. You should have
+apache 2 installed on your machine by the way. Here we create or edit the /etc/apache2/httpd.conf file.
+
+`sudo touch /etc/apache2/httpd.conf`
+
+And using your prefered editor (vim) set the contents of it to be:
+
+```
+ProxyPass /pico/ http://localhost:8800/pico/ retry=5
+ProxyPassReverse /pico/ http://localhost:8800/pico/
+```
+
+Remove any wsgi references to pico if they exist.
+
+The final step now is to enable the mod_proxy in apache so that the configuration 
+file we just created works.
+
+`sudo a2enmod proxy_http`
+`sudo apache2ctl restart`
+
+Now take the html for the example above and place it in your /var/www/ folder.
+Take the python code from the example and place it in your ~/modules folder.
+Navigate to your severs address in your browser and say hello to Fergal.
+
+
+
+
 
 The Pico protocal is very simple so it is also easy to communicate with Pico web services from other languages (e.g. Java, Objective-C for mobile applications). See the client.py for a reference implementation.
 
