@@ -53,7 +53,7 @@ Or run behind Apache with mod_wsgi
 * Pico is a Remote Procedure Call (RPC) library for Python without any of the hassle usually associated with RPC. Literally add one line of code (``import pico``) to your Python module to turn it into a web service that is accessible through the Javascript (and Python) Pico client libararies.
 
 
-## So I have an Amazon EC2 Server. How do I install pico.
+## So I have an Amazon EC2 Server... How do I install pico?
 For this we are going to install pico to run with gevent (https://github.com/surfly/gevent). 
 This is a concurrency library for python that includes a wsgi server. It's more 
 efficient than apache mod_wsgi in many ways.
