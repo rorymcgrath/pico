@@ -53,6 +53,90 @@ Or run behind Apache with mod_wsgi
 * Pico is a Remote Procedure Call (RPC) library for Python without any of the hassle usually associated with RPC. Literally add one line of code (``import pico``) to your Python module to turn it into a web service that is accessible through the Javascript (and Python) Pico client libararies.
 
 
+## So I have an Ubuntu ec2 Server. How do I install pico.
+For this we are going to install pico to run with gevent. gevent (https://github.com/surfly/gevent) is a concurrency library for
+python that includes a wsgi server. It's more efficient than apache mod_wsgi in many ways.
+
+Firstly lets ssh into your machine and install greenlet
+
+`sudo easy_install greenlet`
+
+Next we need to install cython.
+
+`sudo apt-get install cython`
+
+Now we can install the gevent module, this may take several minutes.
+
+`wget https://github.com/surfly/gevent/archive/1.0rc2.tar.gz
+tar -xf 1.0rc2.tar.gz
+cd gevent-1.0rc2/
+python setup.py build
+sudo python setup.py install`
+
+
+Now we need to make the pico server and the modules directory. 
+For the purposes of this tutorial we will place the both of these in home directory.
+
+`touch ~/pico_server`
+
+`mkdir ~/modules`
+
+
+Now we add the following settings to the pico server:
+
+```python
+#!/usr/bin/python
+import gevent
+import gevent.pywsgi
+import pico.server
+import sys
+sys.stdout = sys.stderr # sys.stdout access restricted by mod_wsgi
+path = '/home/ubuntu/modules/' # the modules you want to be usable by Pico
+if path not in sys.path:
+    sys.path.insert(0, path)
+pico.server.STREAMING = True
+print("Serving on port 8800")
+server = gevent.pywsgi.WSGIServer(('0.0.0.0', 8800), pico.server.wsgi_app)
+server.serve_forever()
+```
+
+This server needs to executable, so lets change the permissions for that now.
+
+`chmod +x /home/ubuntu/pico_server`
+
+Now we want to make a start stop script for the pico service.
+
+`sudo touch /etc/init.d/pico`
+
+Set the contents of this file to be:
+
+```bash
+#!/bin/bash
+#/etc/init.d/pico
+#
+
+case "$1" in
+  start)
+    /home/ubuntu/pico_server &> /var/log/pico.log &
+    ;;
+  stop)
+    killall pico_server
+    ;;
+  *)
+    echo "Usage: /etc/init.d/pico {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
+```
+
+Again this file needs to be executable so lets change the premissions:
+
+`sudo chmod +x  /etc/init.d/pico`
+
+Now lets start the pico server
+`sudo service pico start`
 
 The Pico protocal is very simple so it is also easy to communicate with Pico web services from other languages (e.g. Java, Objective-C for mobile applications). See the client.py for a reference implementation.
 
