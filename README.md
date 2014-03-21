@@ -71,7 +71,8 @@ Now we can install the gevent module, this may take several minutes.
 tar -xf 1.0rc2.tar.gz
 cd gevent-1.0rc2/
 python setup.py build
-sudo python setup.py install```
+sudo python setup.py install
+```
 
 
 Now we need to make the pico server and the modules directory. 
